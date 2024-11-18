@@ -33,7 +33,7 @@ function Search() {
             .then((res) => res.json())
             .then((res) => {
                 console.log(res);
-                setSearchResults(res.data || []); // Đảm bảo res.songs là một mảng
+                setSearchResults(res.songs || []); // Đảm bảo res.songs là một mảng
                 setLoading(false);
             })
             .catch(() => {
