@@ -15,6 +15,7 @@ import {
 import Tippy from '@tippyjs/react';
 import 'tippy.js/dist/tippy.css';
 
+import Button from "~/components/Button";
 import {UploadIcon} from '~/components/Icons';
 import styles from './Header.module.scss';
 import images from "~/assets/images";
@@ -22,7 +23,7 @@ import Search from "~/Layout/Search";
 const cx = classNames.bind(styles);
 
 function Header() {
-    const currentUser = true;
+    const currentUser = false;
     return (
         
         <header className={cx('wrapper')}>
@@ -36,14 +37,14 @@ function Header() {
                         <>
                             <Tippy delay={[0,20]} content = "Upload music..." placement="bottom">
                                 <button className = {cx('action-btn')}>
-                                    <UploadIcon/>
+                                    <UploadIcon className={cx('uploadIcon')}/>
                                 </button>
                             </Tippy>
                         </>
                     ): (
                         <>
-                            {/* <button text>Upload</button>
-                            <button primary>Login</button> */}
+                            <Button text>Upload</Button>
+                            <Button primary>Login</Button>
 
                         </>
                     )}

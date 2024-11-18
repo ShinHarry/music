@@ -1,12 +1,11 @@
 import { useEffect, useState, useRef } from 'react';
-
+import axios from 'axios';
+import { useDebounce } from '~/hooks';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-    faCircleXmark,
-    faMagnifyingGlass,
-    faSpinner,
-} from '@fortawesome/free-solid-svg-icons';
+import { faCircleXmark, faMagnifyingGlass, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import HeadlessTippy from '@tippyjs/react/headless';
+
+import * as searchServices from '~/apiServices/searchServices';
 import { Wrapper as PopperWrapper } from '~/Popper';
 import SongItem from '~/components/SongItem';
 import classNames from 'classnames/bind';
@@ -20,26 +19,8 @@ function Search() {
     const [showSearchResults, setShowSearchResults] = useState(true);
     const [loading, setLoading] = useState(false);
 
+    const debounced = useDebounce(searchValue, 500);
     const inputRef = useRef();
-
-    useEffect(() => {
-        if (!searchValue.trim()) {
-            setSearchResults([]);
-            return;
-        }
-        setLoading(true);
-
-        fetch(`http://localhost:3001/api/songs/search?q=${encodeURIComponent(searchValue)}`)
-            .then((res) => res.json())
-            .then((res) => {
-                console.log(res);
-                setSearchResults(res.songs || []); // Đảm bảo res.songs là một mảng
-                setLoading(false);
-            })
-            .catch(() => {
-                setLoading(false);
-            });
-    }, [searchValue]);
 
     const handlClear = () => {
         setSearchValue('');
@@ -47,8 +28,25 @@ function Search() {
         setSearchResults([]);
     };
 
+    useEffect(() => {
+        if (!debounced.trim()) {
+            setSearchResults([]);
+            return;
+        }
+        const fetchApi = async () => {
+            setLoading(true);
+
+            const result = await searchServices.search(debounced);
+            setSearchResults(result);
+
+            setLoading(false);
+        };
+
+        fetchApi();
+    }, [debounced]);
+
     const handlHideResults = () => {
-        setShowSearchResults(false);
+        setShowSearchResults(true);
     };
 
     return (
@@ -59,12 +57,9 @@ function Search() {
                 <div className={cx('search-results')} tabIndex="-1" {...attrs}>
                     <PopperWrapper>
                         <h4 className={cx('search-title')}>Songs</h4>
-                        {searchResults.map((result) => {
-                            <h5>result.title</h5>
-
-                            // Đảm bảo trả về component SongItem cho mỗi kết quả
-                            {/* <SongItem key={result.id} data={result} />; */}
-                        })}
+                        {searchResults.map((result) => (
+                            <SongItem key={result.id} data={result} />
+                        ))}
                     </PopperWrapper>
                 </div>
             )}
